@@ -1,7 +1,8 @@
 from flask import Flask, jsonify, request, abort
 from db_crud import *
+from flask_cors import CORS
 app = Flask(__name__)
-
+CORS(app)
 # get 
 @app.route('/api/posts', methods=['GET'])
 def fetch_posts():
@@ -21,10 +22,16 @@ def fetch_posts():
 
     return jsonify(posts)
 
-@app.route('/api/user', methods=['GET'])
-def fetch_user():
-    user_id = request.args.get('id')
+@app.route('/api/posts/<int:post_id>', methods=['GET'])
+def fetch_post_from_id(post_id):
 
+    if get_post(post_id):
+        return jsonify({"post": get_post(post_id), "comments": get_comments(post_id)})
+    else:
+        abort(404)
+
+@app.route('/api/user/<int:user_id>', methods=['GET'])
+def fetch_user(user_id):
     if not find_user_from_id(user_id):
         abort(404)
 
