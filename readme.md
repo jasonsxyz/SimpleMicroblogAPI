@@ -1,6 +1,6 @@
 # SimpleMicroblogAPI
 
-This is a simple anonymous microblogging API similar to Twitter / X used as a demonstration for handling API requests as part of the [Intro to Svelte Workshop (2026)](https://github.com/ProgSoc/svelte-workshop-demo-2026).
+This is a simple anonymous microblogging API similar to Twitter / X used as a demonstration for handling API requests as part of the [Intro to Svelte Workshop (2026)](https://github.com/ProgSoc/svelte-workshop-demo-2026) that I hosted for UTS Programmers' Society (18/09/2026).
 
 ### Installation
 
