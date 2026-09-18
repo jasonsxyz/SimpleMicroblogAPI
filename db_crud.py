@@ -55,31 +55,75 @@ def get_post(post_id):
     cursor = conn.cursor()
 
     try:
-        cursor.execute("SELECT * From Post WHERE post_id = ?", (post_id,))
+        cursor.execute("""
+            SELECT
+                Post.post_id,
+                Post.user_id,
+                Post.content,
+                Post.created_at,
+                Users.username
+            FROM Post
+            JOIN Users ON Post.user_id = Users.user_id
+            WHERE Post.post_id = ?
+        """, (post_id,))
+
         row = cursor.fetchone()
         return dict(row) if row else None
     finally:
         conn.close()
+
 
 def get_comments(post_id):
     conn = get_connection()
     cursor = conn.cursor()
 
     try:
-        cursor.execute("SELECT * From Comment WHERE post_id = ? ORDER BY created_at DESC", (post_id,))
+        cursor.execute("""
+            SELECT
+                Comment.comment_id,
+                Comment.post_id,
+                Comment.user_id,
+                Comment.content,
+                Comment.created_at,
+                Users.username
+            FROM Comment
+            JOIN Users ON Comment.user_id = Users.user_id
+            WHERE Comment.post_id = ?
+            ORDER BY Comment.created_at DESC
+        """, (post_id,))
+
         return [dict(row) for row in cursor.fetchall()]
     finally:
         conn.close()
+
 
 def get_posts(amount, user_id):
     conn = get_connection()
     cursor = conn.cursor()
 
     try:
-        if not user_id:
-            cursor.execute("SELECT * FROM Post ORDER BY created_at DESC LIMIT ?", (amount,))
-        else:
-            cursor.execute("SELECT * FROM Post WHERE user_id = ? ORDER BY created_at DESC LIMIT ?", (user_id, amount,))
+        query = """
+            SELECT
+                Post.post_id,
+                Post.user_id,
+                Post.content,
+                Post.created_at,
+                Users.username
+            FROM Post
+            JOIN Users ON Post.user_id = Users.user_id
+        """
+
+        params = []
+
+        if user_id:
+            query += " WHERE Post.user_id = ?"
+            params.append(user_id)
+
+        query += " ORDER BY Post.created_at DESC LIMIT ?"
+        params.append(amount)
+
+        cursor.execute(query, params)
+
         return [dict(row) for row in cursor.fetchall()]
     finally:
         conn.close()

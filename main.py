@@ -10,7 +10,7 @@ limit = 50
 # get 
 @app.route('/api/posts', methods=['GET'])
 def fetch_posts():
-    return jsonify(get_posts(amount=limit))
+    return jsonify(get_posts(amount=limit, user_id=None))
 
 @app.route('/api/posts/<int:post_id>', methods=['GET'])
 def fetch_post_from_post_id(post_id):
@@ -18,19 +18,19 @@ def fetch_post_from_post_id(post_id):
     if get_post(post_id):
         return jsonify({"post": get_post(post_id), "comments": get_comments(post_id)})
     else:
-        abort(404)
+        return jsonify({"error": "Couldn't find post"}), 404
 
 @app.route('/api/user/<int:user_id>', methods=['GET'])
 def fetch_user(user_id):
     if not find_user_from_id(user_id):
-        abort(404)
+        return jsonify({"error": "Couldn't find user"}), 404
 
     return jsonify({"user": find_user_from_id(user_id)})
 
 @app.route('/api/user/<int:user_id>/posts', methods=['GET'])
 def fetch_posts_from_user_id(user_id):
     if not find_user_from_id(user_id):
-        abort(404)
+        return jsonify({"error": "Couldn't find user"}), 404
 
     return jsonify(get_posts(amount=limit, user_id=user_id))
 
@@ -42,7 +42,10 @@ def post():
     user = data.get('user')
 
     if not content or not user:
-        abort(400)
+        return jsonify({"error": "User or content is missing."}), 400
+
+    if len(content) > 67:
+        return jsonify({"error": "Content must be less than 67 words."}), 413
 
     create_post(user, content)
 
